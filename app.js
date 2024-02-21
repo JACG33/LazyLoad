@@ -2,6 +2,7 @@ const contPublicaciones = document.querySelector('.publicaciones');
 const contLoad = document.getElementById("contLoad")
 let cont = 0
 let lastCard
+let totalPost = 0
 
 const createCard = (user, cont) => {
   // Cracion de elementos
@@ -32,7 +33,17 @@ const createCard = (user, cont) => {
 }
 
 const observer = new IntersectionObserver((entradas) => {
-  console.log(entradas)
+  if (cont >= totalPost) {
+    contPublicaciones.innerHTML += `
+    <div class="card-publicacion message">
+      <h3 style="text-align:center;"> No hay mas <strong>POST</strong> por cargar</h3> 
+    </div>
+  `
+    setTimeout(() => {
+      document.querySelector('.message').classList.toggle('hidden')
+    }, 5000);
+    return
+  }
   if (entradas[0].isIntersecting) {
     contLoad.classList.add('cont-load-show')
     setTimeout(() => {
@@ -52,22 +63,12 @@ const observer = new IntersectionObserver((entradas) => {
 const cargarPost = async (cantidad) => {
   const req = await fetch('data/data.json');
   const resp = await req.json();
+  totalPost = resp.length
   for (let i = cantidad; i > 0; i--) {
     if (resp[cont] != undefined) {
       const post = createCard(resp[cont].user, resp[cont].content)
       contPublicaciones.append(post)
       cont++;
-    }
-    else {
-      contPublicaciones.innerHTML += `
-          <div class="card-publicacion message">
-            <h3 style="text-align:center;"> No hay mas <strong>POST</strong> por cargar</h3> 
-          </div>
-        `
-      setTimeout(() => {
-        document.querySelector('.message').classList.toggle('hidden')
-      }, 5000);
-      break
     }
   }
 
